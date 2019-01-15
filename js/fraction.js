@@ -60,7 +60,7 @@ var fractionTemplate = `
 function doFraction(elem) {
     var style = window.getComputedStyle(elem);
     //var style = elem.style;
-    console.log("mystyle="+style.getPropertyValue("--display"));
+    //console.log("mystyle="+style.getPropertyValue("--display"));
     if (style.getPropertyValue("--display")=="fraction") {
         let shadow = elem.shadowRoot;
         if (shadow==null) {
