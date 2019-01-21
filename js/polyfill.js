@@ -1,7 +1,7 @@
 import {RuleWalker} from "./cssRuleWalker.js";
 
 var handlerList = [];
-var elementList;
+var elementByDepth;
 
 export class Polyfill {
     static addHandler(str,func) {
@@ -11,7 +11,20 @@ export class Polyfill {
     }
 
     static update() {
+        elementByDepth=[]; // clear
+        
         RuleWalker.walk(processRule);
+
+        // Process elements found in inverse order of depth
+        for (let k in elementByDepth) {
+            for (var j in handlerList) {
+                if (elementByDepth[k][j]!=null) {
+                    for (let l in elementByDepth[k][j]) {
+                        handlerList[j].func(elementByDepth[k][j][l]);
+                    }
+                }
+            }
+        }
         //update(function (str) {console.log("Update: "+str);});
         /*elementList = [];
         console.log("Update");
@@ -38,26 +51,46 @@ export class Polyfill {
 
 var lock;
 
+var update=0;
+
 function processRule(rule) {
-    //console.log("Update: "+rule.cssText);
     let style = rule.style;
-    //for (let i = 0; i<style.length; i++) {
-    //    console.log(style[i]);
-    //}
-    for (var j in handlerList) {
-        for (let i = 0; i<style.length; i++) {
+    for (let i = 0; i<style.length; i++) {
+        for (var j in handlerList) {
             if (handlerList[j].style==style[i]) {
                 let elems = document.querySelectorAll(rule.selectorText);
                 for (let k=0;k<elems.length;k++) {
                     let elem = elems.item(k);
-                    handlerList[j].func(elem);
+                    // Compute depth
+                    let depth=elementDepth(elem);
+                    // Add elem to elementByDepth
+                    rememberElement(depth,j,elem);
                 }
-                
             }
         }
     }
 }
 
+function rememberElement(depth,j,elem) {
+    // Use 10000-depth to revert order
+    if (elementByDepth[10000-depth]==null) {
+        elementByDepth[10000-depth]=[];
+    };
+    if (elementByDepth[10000-depth][j]==null) {
+        elementByDepth[10000-depth][j]=[];
+    }
+    elementByDepth[10000-depth][j].push(elem);
+}
+
+function elementDepth(elem) {
+    let e = elem;
+    let depth=0;
+    while (e!=null) {
+        e=e.parentElement;
+        depth++;
+    }
+    return depth;
+}
 
 
 function init() {

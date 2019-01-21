@@ -37,5 +37,6 @@ TODO
 * Accessibility: use the Accessibility Object Model
 * When the layout fraction style is removed, the layout is not updated 
 * To use `display` instead of `--display`
+* Implement the `styles` attribute
 * To add some tests
 * To add more math constructions like subscripts, accents, stretchy characters, etc.

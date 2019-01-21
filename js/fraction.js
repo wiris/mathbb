@@ -75,13 +75,15 @@ function doFraction(elem) {
             shadow = elem.shadowRoot;
         }
 
+        fixFractionCorruption(elem);
+
         // Add fraction line
         let frac = shadow.querySelector("span");
         let line = shadow.querySelector("span > span > span");
         let lineContent = shadow.querySelector("span > span > span > span");
         // Remove the fraction line from the next "offsetWidth"
         lineContent.innerHTML="";
-        line.style.width="0px"; 
+        line.style.width="0px";
         let w = frac.getBoundingClientRect().width;
         let fs = parseInt(style.getPropertyValue("font-size"));
         let m = Math.floor((4*fs)/16);
@@ -100,5 +102,28 @@ function doFraction(elem) {
     }
 }
 
+function fixFractionCorruption(elem) {
+    if (elem.firstElementChild.nextSibling==null) {
+        if (elem.firstElementChild.slot=="numerator") {
+            console.log("Recover denominator");
+            var span = document.createElement("span");
+            span.slot = "denominator";
+            span.innerHTML = "<br>";
+            elem.appendChild(span);
+        } else {
+            console.log("Recover numerator");
+            var span = document.createElement("span");
+            span.slot = "numerator";
+            span.innerHTML = "<br>";
+            elem.insertBefore(span,elem.firstElementChild);
+        }
+    }
+    if (elem.firstElementChild.slot!="numerator") {
+        elem.firstElementChild.slot="numerator";
+    }
+    if (elem.firstElementChild.nextSibling.slot!="denominator") {
+        elem.firstElementChild.nextSibling.slot="denominator";
+    }
+}
 
 Polyfill.addHandler("--display",doFraction );
